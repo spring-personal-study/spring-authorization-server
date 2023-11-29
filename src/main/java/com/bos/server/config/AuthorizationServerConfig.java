@@ -80,13 +80,13 @@ public class AuthorizationServerConfig {
                 .scope("write")
                 .scope("photo")
                 .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
-//                .tokenSettings(
-//                        TokenSettings.builder()
-//                        .authorizationCodeTimeToLive(Duration.ofMinutes(10L))
-//                        .accessTokenTimeToLive(Duration.ofHours(1L))
-//                        .refreshTokenTimeToLive(Duration.ofDays(180L))
-//                                .build()
-//                )
+                .tokenSettings(
+                        TokenSettings.builder()
+                        .authorizationCodeTimeToLive(Duration.ofMinutes(10L))
+                        .accessTokenTimeToLive(Duration.ofHours(1L))
+                        .refreshTokenTimeToLive(Duration.ofDays(180L))
+                                .build()
+                )
                 .build();
 
         return new InMemoryRegisteredClientRepository(oidcClient);
