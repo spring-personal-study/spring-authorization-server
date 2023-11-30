@@ -51,16 +51,13 @@ public class AuthorizationServerConfig {
                                 new MediaTypeRequestMatcher(MediaType.TEXT_HTML)));
 
         // Accept access tokens for User Info and/or Client Registration
-        http.oauth2ResourceServer((resourceServer) -> resourceServer.jwt(withDefaults()));
-
+        http.oauth2ResourceServer((oauth2) -> oauth2.jwt());
         return http.build();
     }
 
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
-        return AuthorizationServerSettings.builder()
-                .issuer("http://127.0.0.1:9000")
-                .build();
+        return AuthorizationServerSettings.builder().build();
     }
 
     @Bean
@@ -73,6 +70,7 @@ public class AuthorizationServerConfig {
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .redirectUri("http://127.0.0.1:8081")
+                .redirectUri("http://localhost:8081/login/oauth2/code/bluebird")
                 .scope(OidcScopes.OPENID)
                 .scope(OidcScopes.PROFILE)
                 .scope(OidcScopes.EMAIL)
