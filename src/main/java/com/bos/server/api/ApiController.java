@@ -8,7 +8,7 @@ public class ApiController {
 
     @GetMapping("/api")
     public String api() {
-        return "api test success";
+        return "success";
     }
 
 }
