@@ -1,4 +1,4 @@
-package com.bos.server.oauth.entity;
+package com.bos.server.oauth.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

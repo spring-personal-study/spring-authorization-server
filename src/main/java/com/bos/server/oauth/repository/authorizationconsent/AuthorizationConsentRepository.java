@@ -1,6 +1,6 @@
 package com.bos.server.oauth.repository.authorizationconsent;
 
-import com.bos.server.oauth.entity.AuthorizationConsent;
+import com.bos.server.oauth.model.entity.AuthorizationConsent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

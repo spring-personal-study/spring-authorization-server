@@ -1,4 +1,4 @@
-package com.bos.server.oauth.entity;
+package com.bos.server.oauth.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
@@ -18,22 +17,22 @@ public class AccessToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "token_value", length = 4000)
+    @Column(name = "access_token_value", length = 4000)
     private String tokenValue;
 
-    @Column(name = "token_issued_at")
+    @Column(name = "access_token_issued_at")
     private Instant tokenIssuedAt;
 
-    @Column(name = "token_expires_at")
+    @Column(name = "access_token_expires_at")
     private Instant tokenExpiresAt;
 
-    @Column(name = "token_metadata", length = 2000)
+    @Column(name = "access_token_metadata", length = 2000)
     private String tokenMetadata;
 
-    @Column(name = "token_type")
+    @Column(name = "access_token_type")
     private String tokenType;
 
-    @Column(name = "token_scopes", length = 1000)
+    @Column(name = "access_token_scopes", length = 1000)
     private String tokenScopes;
 
     @OneToOne(fetch = FetchType.LAZY)

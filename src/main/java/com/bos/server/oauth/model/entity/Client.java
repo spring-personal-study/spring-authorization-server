@@ -1,4 +1,4 @@
-package com.bos.server.oauth.entity;
+package com.bos.server.oauth.model.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -6,9 +6,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Getter
@@ -27,10 +26,10 @@ public class Client {
     private String clientSecret;
 
     @Column(name = "client_id_issued_at", nullable = false)
-    private LocalDateTime clientIdIssuedAt;
+    private Instant clientIdIssuedAt;
 
     @Column(name = "client_secret_expires_at")
-    private LocalDateTime clientSecretExpiresAt;
+    private Instant clientSecretExpiresAt;
 
     @Column(name = "client_name", nullable = false)
     private String clientName;
@@ -56,7 +55,7 @@ public class Client {
     @Column(name = "token_settings", length = 2000, nullable = false)
     private String tokenSettings;
 
-    public Client(String id, String clientId, String clientSecret, LocalDateTime clientIdIssuedAt, LocalDateTime clientSecretExpiresAt, String clientName, String clientAuthenticationMethods, String authorizationGrantTypes, String redirectUris, String postLogoutRedirectUris, String scopes, String clientSettings, String tokenSettings) {
+    public Client(String id, String clientId, String clientSecret, Instant clientIdIssuedAt, Instant clientSecretExpiresAt, String clientName, String clientAuthenticationMethods, String authorizationGrantTypes, String redirectUris, String postLogoutRedirectUris, String scopes, String clientSettings, String tokenSettings) {
         this.id = id;
         this.clientId = clientId;
         this.clientSecret = clientSecret;

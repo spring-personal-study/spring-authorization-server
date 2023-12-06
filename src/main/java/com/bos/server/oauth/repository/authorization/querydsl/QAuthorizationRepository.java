@@ -1,6 +1,6 @@
-package com.bos.server.oauth.repository.querydsl;
+package com.bos.server.oauth.repository.authorization.querydsl;
 
-import com.bos.server.oauth.entity.Authorization;
+import com.bos.server.oauth.model.entity.Authorization;
 
 import java.util.Optional;
 

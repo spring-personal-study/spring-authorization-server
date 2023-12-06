@@ -1,7 +1,7 @@
 package com.bos.server.oauth.repository.authorization;
 
-import com.bos.server.oauth.entity.Authorization;
-import com.bos.server.oauth.repository.querydsl.QAuthorizationRepository;
+import com.bos.server.oauth.model.entity.Authorization;
+import com.bos.server.oauth.repository.authorization.querydsl.QAuthorizationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

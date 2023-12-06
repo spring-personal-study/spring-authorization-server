@@ -1,6 +1,6 @@
 package com.bos.server.oauth.repository.oidctoken;
 
-import com.bos.server.oauth.entity.OidcToken;
+import com.bos.server.oauth.model.entity.OidcToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,11 +1,10 @@
-package com.bos.server.oauth.entity;
+package com.bos.server.oauth.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor

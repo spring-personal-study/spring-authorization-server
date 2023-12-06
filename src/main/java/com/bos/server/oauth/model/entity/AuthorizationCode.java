@@ -1,4 +1,4 @@
-package com.bos.server.oauth.entity;
+package com.bos.server.oauth.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -13,8 +13,7 @@ import java.time.Instant;
 public class AuthorizationCode {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     @Column(name = "authorization_code_value", length = 4000)
     private String authorizationCodeValue;
@@ -32,7 +31,8 @@ public class AuthorizationCode {
     @JoinColumn(name = "authorization_id", nullable = false)
     private Authorization authorization;
 
-    public AuthorizationCode(String authorizationCodeValue, Instant authorizationCodeIssuedAt, Instant authorizationCodeExpiresAt, String authorizationCodeMetadata, Authorization authorization) {
+    public AuthorizationCode(String id, String authorizationCodeValue, Instant authorizationCodeIssuedAt, Instant authorizationCodeExpiresAt, String authorizationCodeMetadata, Authorization authorization) {
+        this.id = id;
         this.authorizationCodeValue = authorizationCodeValue;
         this.authorizationCodeIssuedAt = authorizationCodeIssuedAt;
         this.authorizationCodeExpiresAt = authorizationCodeExpiresAt;

@@ -1,6 +1,6 @@
 package com.bos.server.oauth.service;
 
-import com.bos.server.oauth.entity.AuthorizationConsent;
+import com.bos.server.oauth.model.entity.AuthorizationConsent;
 import com.bos.server.oauth.repository.authorizationconsent.AuthorizationConsentRepository;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.security.core.GrantedAuthority;
@@ -10,8 +10,8 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,13 +19,13 @@ import java.util.Set;
 @Component
 public class JpaOAuth2AuthorizationConsentService implements OAuth2AuthorizationConsentService {
     private final AuthorizationConsentRepository authorizationConsentRepository;
-    private final RegisteredClientRepository registeredClientRepository;
+    private final RegisteredClientRepository jpaRegisteredClientRepository;
 
-    public JpaOAuth2AuthorizationConsentService(AuthorizationConsentRepository authorizationConsentRepository, RegisteredClientRepository registeredClientRepository) {
+    public JpaOAuth2AuthorizationConsentService(AuthorizationConsentRepository authorizationConsentRepository, RegisteredClientRepository jpaRegisteredClientRepository) {
         Assert.notNull(authorizationConsentRepository, "authorizationConsentRepository cannot be null");
-        Assert.notNull(registeredClientRepository, "registeredClientRepository cannot be null");
+        Assert.notNull(jpaRegisteredClientRepository, "registeredClientRepository cannot be null");
         this.authorizationConsentRepository = authorizationConsentRepository;
-        this.registeredClientRepository = registeredClientRepository;
+        this.jpaRegisteredClientRepository = jpaRegisteredClientRepository;
     }
 
     @Override
@@ -51,14 +51,15 @@ public class JpaOAuth2AuthorizationConsentService implements OAuth2Authorization
 
     private OAuth2AuthorizationConsent toObject(AuthorizationConsent authorizationConsent) {
         String registeredClientId = authorizationConsent.getRegisteredClientId();
-        RegisteredClient registeredClient = this.registeredClientRepository.findById(registeredClientId);
+        RegisteredClient registeredClient = this.jpaRegisteredClientRepository.findById(registeredClientId);
         if (registeredClient == null) {
             throw new DataRetrievalFailureException(
                     "The RegisteredClient with id '" + registeredClientId + "' was not found in the RegisteredClientRepository.");
         }
 
         OAuth2AuthorizationConsent.Builder builder = OAuth2AuthorizationConsent.withId(
-                registeredClientId, authorizationConsent.getPrincipalName());
+                registeredClientId, authorizationConsent.getPrincipalName()
+        );
         if (authorizationConsent.getAuthorities() != null) {
             for (String authority : StringUtils.commaDelimitedListToSet(authorizationConsent.getAuthorities())) {
                 builder.authority(new SimpleGrantedAuthority(authority));
@@ -69,7 +70,7 @@ public class JpaOAuth2AuthorizationConsentService implements OAuth2Authorization
     }
 
     private AuthorizationConsent toEntity(OAuth2AuthorizationConsent authorizationConsent) {
-        Set<String> authorities = new HashSet<>();
+       Set<String> authorities = new HashSet<>();
         for (GrantedAuthority authority : authorizationConsent.getAuthorities()) {
             authorities.add(authority.getAuthority());
         }

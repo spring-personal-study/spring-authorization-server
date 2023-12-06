@@ -1,6 +1,7 @@
 package com.bos.server.oauth.repository.client;
 
-import com.bos.server.oauth.entity.Client;
+import com.bos.server.oauth.model.entity.Client;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,8 +18,12 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping.NON_FINAL;
 
 @Component
 public class JpaRegisteredClientRepository implements RegisteredClientRepository {
@@ -105,8 +110,8 @@ public class JpaRegisteredClientRepository implements RegisteredClientRepository
                 registeredClient.getId(),
                 registeredClient.getClientId(),
                 registeredClient.getClientSecret(),
-                LocalDateTime.from(Objects.requireNonNull(registeredClient.getClientIdIssuedAt())),
-                LocalDateTime.from(Objects.requireNonNull(registeredClient.getClientSecretExpiresAt())),
+                registeredClient.getClientIdIssuedAt(),
+                registeredClient.getClientSecretExpiresAt(),
                 registeredClient.getClientName(),
                 StringUtils.collectionToCommaDelimitedString(clientAuthenticationMethods),
                 StringUtils.collectionToCommaDelimitedString(authorizationGrantTypes),
@@ -120,8 +125,8 @@ public class JpaRegisteredClientRepository implements RegisteredClientRepository
 
     private Map<String, Object> parseMap(String data) {
         try {
-            return this.objectMapper.readValue(data, new TypeReference<>() {
-            });
+            //objectMapper.deactivateDefaultTyping();
+            return this.objectMapper.readValue(data, new TypeReference<>() {});
         } catch (Exception ex) {
             throw new IllegalArgumentException(ex.getMessage(), ex);
         }

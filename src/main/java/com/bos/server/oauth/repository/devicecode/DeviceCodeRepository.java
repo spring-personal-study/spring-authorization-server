@@ -1,6 +1,6 @@
 package com.bos.server.oauth.repository.devicecode;
 
-import com.bos.server.oauth.entity.DeviceCode;
+import com.bos.server.oauth.model.entity.DeviceCode;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
