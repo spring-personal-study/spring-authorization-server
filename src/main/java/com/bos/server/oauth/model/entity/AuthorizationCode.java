@@ -13,7 +13,8 @@ import java.time.Instant;
 public class AuthorizationCode {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "authorization_code_value", length = 4000)
     private String authorizationCodeValue;
@@ -31,8 +32,7 @@ public class AuthorizationCode {
     @JoinColumn(name = "authorization_id", nullable = false)
     private Authorization authorization;
 
-    public AuthorizationCode(String id, String authorizationCodeValue, Instant authorizationCodeIssuedAt, Instant authorizationCodeExpiresAt, String authorizationCodeMetadata, Authorization authorization) {
-        this.id = id;
+    public AuthorizationCode(String authorizationCodeValue, Instant authorizationCodeIssuedAt, Instant authorizationCodeExpiresAt, String authorizationCodeMetadata, Authorization authorization) {
         this.authorizationCodeValue = authorizationCodeValue;
         this.authorizationCodeIssuedAt = authorizationCodeIssuedAt;
         this.authorizationCodeExpiresAt = authorizationCodeExpiresAt;

@@ -3,9 +3,12 @@ package com.bos.server.oauth.model.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.id.UUIDGenerator;
 import org.hibernate.id.uuid.UuidGenerator;
+
+import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
@@ -34,6 +37,10 @@ public class Authorization {
     @Column(name = "state", length = 500)
     private String state;
 
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+
     @OneToOne(mappedBy = "authorization", fetch = FetchType.LAZY)
     private AuthorizationCode authorizationCode;
 
@@ -60,29 +67,5 @@ public class Authorization {
         this.authorizedScopes = authorizedScopes;
         this.attributes = attributes;
         this.state = state;
-    }
-
-    public void setAuthorizationCode(AuthorizationCode authorizationCode) {
-        this.authorizationCode = authorizationCode;
-    }
-
-    public void setAccessToken(AccessToken accessToken) {
-        this.accessToken = accessToken;
-    }
-
-    public void setRefreshToken(RefreshToken refreshToken) {
-        this.refreshToken = refreshToken;
-    }
-
-    public void setOidcToken(OidcToken oidcToken) {
-        this.oidcToken = oidcToken;
-    }
-
-    public void setDeviceCode(DeviceCode deviceCode) {
-        this.deviceCode = deviceCode;
-    }
-
-    public void setUserCode(UserCode userCode) {
-        this.userCode = userCode;
     }
 }

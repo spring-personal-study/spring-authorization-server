@@ -31,7 +31,6 @@ public class JpaRegisteredClientRepository implements RegisteredClientRepository
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public JpaRegisteredClientRepository(ClientRepository clientRepository) {
-        Assert.notNull(clientRepository, "clientRepository cannot be null");
         this.clientRepository = clientRepository;
 
         ClassLoader classLoader = JpaRegisteredClientRepository.class.getClassLoader();
@@ -42,19 +41,16 @@ public class JpaRegisteredClientRepository implements RegisteredClientRepository
 
     @Override
     public void save(RegisteredClient registeredClient) {
-        Assert.notNull(registeredClient, "registeredClient cannot be null");
         this.clientRepository.save(toEntity(registeredClient));
     }
 
     @Override
     public RegisteredClient findById(String id) {
-        Assert.hasText(id, "id cannot be empty");
         return this.clientRepository.findById(id).map(this::toObject).orElse(null);
     }
 
     @Override
     public RegisteredClient findByClientId(String clientId) {
-        Assert.hasText(clientId, "clientId cannot be empty");
         return this.clientRepository.findByClientId(clientId).map(this::toObject).orElse(null);
     }
 
@@ -125,7 +121,6 @@ public class JpaRegisteredClientRepository implements RegisteredClientRepository
 
     private Map<String, Object> parseMap(String data) {
         try {
-            //objectMapper.deactivateDefaultTyping();
             return this.objectMapper.readValue(data, new TypeReference<>() {});
         } catch (Exception ex) {
             throw new IllegalArgumentException(ex.getMessage(), ex);

@@ -1,5 +1,6 @@
 package com.bos.server.oauth.service;
 
+import com.bos.server.oauth.model.dto.ResourceOwnerDto;
 import com.bos.server.oauth.model.entity.*;
 import com.bos.server.oauth.repository.accesstoken.AccessTokenRepository;
 import com.bos.server.oauth.repository.authoricationcode.AuthorizationCodeRepository;
@@ -7,14 +8,15 @@ import com.bos.server.oauth.repository.authorization.AuthorizationRepository;
 import com.bos.server.oauth.repository.devicecode.DeviceCodeRepository;
 import com.bos.server.oauth.repository.oidctoken.OidcTokenRepository;
 import com.bos.server.oauth.repository.refreshtoken.RefreshTokenRepository;
+import com.bos.server.oauth.repository.resourceowner.ResourceOwnerRepository;
 import com.bos.server.oauth.repository.usercode.UserCodeRepository;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataRetrievalFailureException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.jackson2.CoreJackson2Module;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.oauth2.core.*;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
@@ -28,6 +30,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.jackson2.OAuth2AuthorizationServerJackson2Module;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -35,6 +38,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
+import static com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping.NON_FINAL;
 
 @Component
 public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService {
@@ -46,6 +51,8 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
     private final OidcTokenRepository oidcTokenRepository;
     private final DeviceCodeRepository deviceCodeRepository;
     private final UserCodeRepository userCodeRepository;
+    private final ResourceOwnerRepository resourceOwnerRepository;
+    private final PasswordEncoder bcryptPasswordEncoder;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -57,10 +64,10 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
             RefreshTokenRepository refreshTokenRepository,
             OidcTokenRepository oidcTokenRepository,
             DeviceCodeRepository deviceCodeRepository,
-            UserCodeRepository userCodeRepository
+            UserCodeRepository userCodeRepository,
+            ResourceOwnerRepository resourceOwnerRepository,
+            PasswordEncoder passwordEncoder
     ) {
-        Assert.notNull(authorizationRepository, "authorizationRepository cannot be null");
-        Assert.notNull(registeredClientRepository, "registeredClientRepository cannot be null");
         this.authorizationRepository = authorizationRepository;
         this.jpaRegisteredClientRepository = registeredClientRepository;
 
@@ -69,17 +76,27 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
         this.objectMapper.registerModules(securityModules);
         this.objectMapper.registerModule(new OAuth2AuthorizationServerJackson2Module());
 
+
         this.authorizationCodeRepository = authorizationCodeRepository;
         this.accessTokenRepository = accessTokenRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.oidcTokenRepository = oidcTokenRepository;
         this.deviceCodeRepository = deviceCodeRepository;
         this.userCodeRepository = userCodeRepository;
+        this.resourceOwnerRepository = resourceOwnerRepository;
+        this.bcryptPasswordEncoder = passwordEncoder;
     }
+
+    @Transactional(readOnly = true)
+    public ResourceOwnerDto login(String roId, String password) {
+        ResourceOwner resourceOwner = resourceOwnerRepository.findByResourceOwnerId(roId);
+        resourceOwner.login(bcryptPasswordEncoder, password);
+        return ResourceOwnerDto.toObject(resourceOwner);
+    }
+
 
     @Override
     public void save(OAuth2Authorization authorization) {
-        Assert.notNull(authorization, "authorization cannot be null");
         Authorization authorizationEntity = toEntity(authorization);
         AuthorizationCode authorizationCode = toEntity2(authorization, authorizationEntity);
         AccessToken accessToken = toEntity3(authorization, authorizationEntity);
@@ -101,13 +118,11 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
 
     @Override
     public void remove(OAuth2Authorization authorization) {
-        Assert.notNull(authorization, "authorization cannot be null");
         this.authorizationRepository.deleteById(authorization.getId());
     }
 
     @Override
     public OAuth2Authorization findById(String id) {
-        Assert.hasText(id, "id cannot be empty");
         return this.authorizationRepository.findById(id)
                 .map(this::toObject)
                 .orElse(null);
@@ -115,8 +130,6 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
 
     @Override
     public OAuth2Authorization findByToken(String token, OAuth2TokenType tokenType) {
-        Assert.hasText(token, "token cannot be empty");
-
         Optional<Authorization> result;
         if (tokenType == null) {
             result = this.authorizationRepository.findByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValueOrOidcIdTokenValueOrUserCodeValueOrDeviceCodeValue(token);
@@ -228,7 +241,6 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
         if (authorizationCode == null) return null;
         OAuth2Token token = authorizationCode.getToken();
         return new AuthorizationCode(
-                UUID.randomUUID().toString(),
                 token.getTokenValue(),
                 token.getIssuedAt(),
                 token.getExpiresAt(),
@@ -310,7 +322,7 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
 
     private Map<String, Object> parseMap(String data) {
         try {
-            //objectMapper.deactivateDefaultTyping();
+            this.objectMapper.enableDefaultTyping(NON_FINAL, JsonTypeInfo.As.PROPERTY);
             return this.objectMapper.readValue(data, new TypeReference<>() {
             });
         } catch (Exception ex) {
@@ -320,7 +332,6 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
 
     private String writeMap(Map<String, Object> metadata) {
         try {
-            //objectMapper.deactivateDefaultTyping();
             return this.objectMapper.writeValueAsString(metadata);
         } catch (Exception ex) {
             throw new IllegalArgumentException(ex.getMessage(), ex);

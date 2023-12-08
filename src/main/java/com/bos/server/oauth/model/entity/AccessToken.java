@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.Instant;
 
@@ -32,6 +33,7 @@ public class AccessToken {
     @Column(name = "access_token_type")
     private String tokenType;
 
+    @Setter
     @Column(name = "access_token_scopes", length = 1000)
     private String tokenScopes;
 
@@ -48,7 +50,4 @@ public class AccessToken {
         this.authorization = authorization;
     }
 
-    public void setTokenScopes(String tokenScopes) {
-        this.tokenScopes = tokenScopes;
-    }
 }

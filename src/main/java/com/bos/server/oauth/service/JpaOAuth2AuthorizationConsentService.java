@@ -22,29 +22,23 @@ public class JpaOAuth2AuthorizationConsentService implements OAuth2Authorization
     private final RegisteredClientRepository jpaRegisteredClientRepository;
 
     public JpaOAuth2AuthorizationConsentService(AuthorizationConsentRepository authorizationConsentRepository, RegisteredClientRepository jpaRegisteredClientRepository) {
-        Assert.notNull(authorizationConsentRepository, "authorizationConsentRepository cannot be null");
-        Assert.notNull(jpaRegisteredClientRepository, "registeredClientRepository cannot be null");
         this.authorizationConsentRepository = authorizationConsentRepository;
         this.jpaRegisteredClientRepository = jpaRegisteredClientRepository;
     }
 
     @Override
     public void save(OAuth2AuthorizationConsent authorizationConsent) {
-        Assert.notNull(authorizationConsent, "authorizationConsent cannot be null");
         this.authorizationConsentRepository.save(toEntity(authorizationConsent));
     }
 
     @Override
     public void remove(OAuth2AuthorizationConsent authorizationConsent) {
-        Assert.notNull(authorizationConsent, "authorizationConsent cannot be null");
         this.authorizationConsentRepository.deleteByRegisteredClientIdAndPrincipalName(
                 authorizationConsent.getRegisteredClientId(), authorizationConsent.getPrincipalName());
     }
 
     @Override
     public OAuth2AuthorizationConsent findById(String registeredClientId, String principalName) {
-        Assert.hasText(registeredClientId, "registeredClientId cannot be empty");
-        Assert.hasText(principalName, "principalName cannot be empty");
         return this.authorizationConsentRepository.findByRegisteredClientIdAndPrincipalName(
                 registeredClientId, principalName).map(this::toObject).orElse(null);
     }

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace=""></head>
+<body>
+<div th:replace=""></div>
+<div class="container text-center">
+    <div class="login-form d-flex justify-content-center">
+        <div class="col-sm-5" style="margin-top: 30px;">
+            <div class="panel">
+                <p>please enter id / pw</p>
+            </div>
+            <form th:action="@{/login_proc}" class="form-signin" method="post">
+                <div class="form-group">
+                    <input type="text" class="form-control" name="username" placeholder="ID" required="required" autofocus="autofocus" />
+                </div>
+                <div class="form-group">
+                    <input type="password" class="form-control" name="password" placeholder="PASSWORD" required="required" />
+                </div>
+                <!--
+                <div class="form-group">
+                    Remember Me<input type="checkbox" name="remember-me" />
+                </div>-->
+                <button type="submit" class="btn btn-lg btn-primary btn-block">LOGIN</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
