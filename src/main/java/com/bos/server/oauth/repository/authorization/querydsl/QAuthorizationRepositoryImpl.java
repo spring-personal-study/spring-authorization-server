@@ -108,4 +108,12 @@ public class QAuthorizationRepositoryImpl implements QAuthorizationRepository {
 
         return Optional.ofNullable(authorization);
     }
+
+    @Override
+    public Boolean existsByAuthorizationId(String authorizationId) {
+        return queryFactory.selectOne()
+                .from(QAuthorization.authorization)
+                .where(QAuthorization.authorization.id.eq(authorizationId))
+                .fetchOne() != null;
+    }
 }

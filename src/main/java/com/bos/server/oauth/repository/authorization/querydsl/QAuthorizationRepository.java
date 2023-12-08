@@ -18,4 +18,6 @@ public interface QAuthorizationRepository {
     Optional<Authorization> findByUserCodeValue(String token);
 
     Optional<Authorization> findByDeviceCodeValue(String token);
+
+    Boolean existsByAuthorizationId(String authorizationId);
 }

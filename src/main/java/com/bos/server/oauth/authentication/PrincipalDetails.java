@@ -4,6 +4,7 @@ import com.bos.server.oauth.model.entity.ResourceOwner;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
@@ -32,9 +33,11 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
     }
 
     public void setAuthorities(List<?> authorities) {
-        Collection<GrantedAuthority> collection = new ArrayList<>();
-        collection.add((GrantedAuthority) resourceOwner::getRoles);
-        this.authorities = collection;
+        if (resourceOwner.getRoles() == null) return;
+        List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+        List<String> roles = List.of(resourceOwner.getRoles().split(","));
+        roles.forEach(role -> grantedAuthorities.add(new SimpleGrantedAuthority(role)));
+        this.authorities = grantedAuthorities;
     }
 
     @Override

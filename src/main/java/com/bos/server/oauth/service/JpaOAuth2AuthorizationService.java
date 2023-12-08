@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.jackson2.CoreJackson2Module;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.oauth2.core.*;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
@@ -31,15 +30,11 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.jackson2.OAuth2AuthorizationServerJackson2Module;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
-
-import static com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping.NON_FINAL;
 
 @Component
 public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService {
@@ -97,23 +92,25 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
 
     @Override
     public void save(OAuth2Authorization authorization) {
-        Authorization authorizationEntity = toEntity(authorization);
-        AuthorizationCode authorizationCode = toEntity2(authorization, authorizationEntity);
-        AccessToken accessToken = toEntity3(authorization, authorizationEntity);
-        RefreshToken refreshToken = toEntity4(authorization, authorizationEntity);
-        OidcToken oidcToken = toEntity5(authorization, authorizationEntity);
-        UserCode userCode = toEntity6(authorization, authorizationEntity);
-        DeviceCode deviceCode = toEntity7(authorization, authorizationEntity);
-
-        authorizationRepository.save(authorizationEntity);
-        authorizationRepository.flush();
-
-        if (authorizationCode != null) authorizationCodeRepository.save(authorizationCode);
-        if (accessToken != null) accessTokenRepository.save(accessToken);
-        if (refreshToken != null) refreshTokenRepository.save(refreshToken);
-        if (oidcToken != null) oidcTokenRepository.save(oidcToken);
-        if (userCode != null) userCodeRepository.save(userCode);
-        if (deviceCode != null) deviceCodeRepository.save(deviceCode);
+        if (authorization == null) throw new IllegalArgumentException("authorization cannot be null");
+        boolean isExists = authorizationRepository.existsByAuthorizationId(authorization.getId());
+        if (!isExists) {
+            Authorization authorizationEntity = toEntity(authorization);
+            AuthorizationCode authorizationCode = toEntity2(authorization, authorizationEntity);
+            AccessToken accessToken = toEntity3(authorization, authorizationEntity);
+            RefreshToken refreshToken = toEntity4(authorization, authorizationEntity);
+            OidcToken oidcToken = toEntity5(authorization, authorizationEntity);
+            UserCode userCode = toEntity6(authorization, authorizationEntity);
+            DeviceCode deviceCode = toEntity7(authorization, authorizationEntity);
+            authorizationRepository.save(authorizationEntity);
+            authorizationRepository.flush();
+            if (authorizationCode != null) authorizationCodeRepository.save(authorizationCode);
+            if (accessToken != null) accessTokenRepository.save(accessToken);
+            if (refreshToken != null) refreshTokenRepository.save(refreshToken);
+            if (oidcToken != null) oidcTokenRepository.save(oidcToken);
+            if (userCode != null) userCodeRepository.save(userCode);
+            if (deviceCode != null) deviceCodeRepository.save(deviceCode);
+        }
     }
 
     @Override
@@ -322,7 +319,7 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
 
     private Map<String, Object> parseMap(String data) {
         try {
-            this.objectMapper.enableDefaultTyping(NON_FINAL, JsonTypeInfo.As.PROPERTY);
+            this.objectMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
             return this.objectMapper.readValue(data, new TypeReference<>() {
             });
         } catch (Exception ex) {
