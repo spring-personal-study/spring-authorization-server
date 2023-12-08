@@ -41,7 +41,7 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.14.0'
 
     // thymeleaf
-    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+    //implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
 }
 
 tasks.named('bootBuildImage') {

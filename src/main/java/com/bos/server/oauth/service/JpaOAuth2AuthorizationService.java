@@ -1,5 +1,7 @@
 package com.bos.server.oauth.service;
 
+import com.bos.server.config.exception.common.BizException;
+import com.bos.server.oauth.exception.ResourceOwnerCrudErrorCode;
 import com.bos.server.oauth.model.dto.ResourceOwnerDto;
 import com.bos.server.oauth.model.entity.*;
 import com.bos.server.oauth.repository.accesstoken.AccessTokenRepository;
@@ -85,6 +87,7 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
     @Transactional(readOnly = true)
     public ResourceOwnerDto login(String roId, String password) {
         ResourceOwner resourceOwner = resourceOwnerRepository.findByResourceOwnerId(roId);
+        if (resourceOwner == null) throw new BizException(ResourceOwnerCrudErrorCode.RO_NOT_FOUND);
         resourceOwner.login(bcryptPasswordEncoder, password);
         return ResourceOwnerDto.toObject(resourceOwner);
     }
