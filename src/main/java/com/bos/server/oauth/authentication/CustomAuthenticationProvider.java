@@ -1,6 +1,7 @@
 package com.bos.server.oauth.authentication;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
@@ -11,6 +12,7 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class CustomAuthenticationProvider implements AuthenticationProvider {
@@ -25,13 +27,17 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication =
                 (OAuth2AuthorizationCodeRequestAuthenticationToken) authentication;
 
-        AuthenticationProvider authenticationProvider
-                = new OAuth2AuthorizationCodeRequestAuthenticationProvider(registeredClientRepository, oAuth2AuthorizationService, oAuth2AuthorizationConsentService);
-        AbstractAuthenticationToken authenticate
-                = (AbstractAuthenticationToken) authenticationProvider.authenticate(authorizationCodeRequestAuthentication);
+        AuthenticationProvider authenticationProvider = new OAuth2AuthorizationCodeRequestAuthenticationProvider(
+                registeredClientRepository,
+                oAuth2AuthorizationService,
+                oAuth2AuthorizationConsentService
+        );
+        AbstractAuthenticationToken authenticate = (AbstractAuthenticationToken) authenticationProvider.authenticate(
+                authorizationCodeRequestAuthentication
+        );
 
         Authentication principal = (Authentication) authorizationCodeRequestAuthentication.getPrincipal();
-        System.out.println("principal = " + principal);
+        log.info("principal = " + principal);
 
         return authenticate;
 

@@ -1,7 +1,6 @@
 package com.bos.server.config;
 
 import com.bos.server.oauth.authentication.CustomAuthenticationProvider;
-import com.bos.server.oauth.authentication.PrincipalDetails;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
@@ -14,37 +13,34 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
-import org.springframework.security.oauth2.server.authorization.token.*;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
-import org.springframework.security.core.GrantedAuthority;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
-
 
 import static com.bos.server.config.CustomClientMetadataConfig.configureCustomClientMetadataConverters;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.util.StringUtils.hasText;
 
+@EnableWebSecurity
 @Configuration
 @RequiredArgsConstructor
 public class AuthorizationServerConfig {
 
-    private final CustomAuthenticationProvider customAuthenticationProvider;
+    private final CustomAuthenticationProvider authenticationProvider;
 
     @Bean
     @Order(1)
@@ -53,23 +49,11 @@ public class AuthorizationServerConfig {
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 .oidc(oidc -> oidc.clientRegistrationEndpoint(
                         clientRegistrationEndpoint ->
-                                clientRegistrationEndpoint.authenticationProviders(configureCustomClientMetadataConverters())))// Enable OpenID Connect 1.0
+                                clientRegistrationEndpoint.authenticationProviders(configureCustomClientMetadataConverters())))
                 .authorizationEndpoint(authorizationEndpoint -> authorizationEndpoint
-                        .authenticationProvider(customAuthenticationProvider)
-                        .authorizationResponseHandler((request, response, authentication) -> {
-                                    OAuth2AuthorizationCodeRequestAuthenticationToken auth = (OAuth2AuthorizationCodeRequestAuthenticationToken) authentication;
-                                    //String redirectUri = auth.getRedirectUri();
-                                    //String authorizationCode = auth.getAuthorizationCode().getTokenValue();
-                                    if (hasText(auth.getState())) {
-                                        response.sendRedirect(auth.getRedirectUri() + "?code=" + auth.getAuthorizationCode().getTokenValue() + "&state=" + auth.getState());
-                                        return;
-                                    }
-                                    response.sendRedirect(auth.getRedirectUri() + "?code=" + auth.getAuthorizationCode().getTokenValue());
-                                }
-                        )
+                        .authenticationProvider(authenticationProvider)
+                        .authorizationResponseHandler(authenticationSuccessHandler())
                         .errorResponseHandler((request, response, exception) -> response.sendError(HttpServletResponse.SC_BAD_REQUEST)));
-        // Redirect to the login page when not authenticated from the
-        // authorization endpoint
         http.exceptionHandling((exceptions) -> exceptions.defaultAuthenticationEntryPointFor(
                 new LoginUrlAuthenticationEntryPoint("/login"),
                 new MediaTypeRequestMatcher(MediaType.TEXT_HTML)));
@@ -84,23 +68,17 @@ public class AuthorizationServerConfig {
         return AuthorizationServerSettings.builder().build();
     }
 
-   /* @Bean
-    public RegisteredClientRepository registeredClientRepository() {
-        RegisteredClient registrarClient = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("bluebird-default-client")
-                .clientSecret("{bcrypt}$2a$12$tDI3S/mBdAYYEy3O.tHvFuHrsDz..QrDNtcMaQPDlLHI23tkkp4dO")
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
-                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri("http://localhost:9000")
-                .redirectUri("http://localhost:9000/login/oauth2/code/bluebird-client-oidc")
-                .scope("client.create")
-                .scope("client.read")
-                .build();
-
-        return new InMemoryRegisteredClientRepository(registrarClient);
-    }*/
+    @Bean
+    public AuthenticationSuccessHandler authenticationSuccessHandler() {
+        return (request, response, authentication) -> {
+            OAuth2AuthorizationCodeRequestAuthenticationToken auth = (OAuth2AuthorizationCodeRequestAuthenticationToken) authentication;
+            if (hasText(auth.getState())) {
+                response.sendRedirect(auth.getRedirectUri() + "?code=" + Objects.requireNonNull(auth.getAuthorizationCode()).getTokenValue() + "&state=" + auth.getState());
+                return;
+            }
+            response.sendRedirect(auth.getRedirectUri() + "?code=" + Objects.requireNonNull(auth.getAuthorizationCode()).getTokenValue());
+        };
+    }
 
     @Bean
     public JWKSource<SecurityContext> jwkSource() {

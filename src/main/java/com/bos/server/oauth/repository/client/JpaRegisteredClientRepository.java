@@ -18,6 +18,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -93,9 +95,11 @@ public class JpaRegisteredClientRepository implements RegisteredClientRepository
 
     private Client toEntity(RegisteredClient registeredClient) {
         List<String> clientAuthenticationMethods = new ArrayList<>(registeredClient.getClientAuthenticationMethods().size());
-        registeredClient
+      /*  registeredClient
                 .getClientAuthenticationMethods()
-                .forEach(clientAuthenticationMethod -> clientAuthenticationMethods.add(clientAuthenticationMethod.getValue()));
+                .forEach(clientAuthenticationMethod -> clientAuthenticationMethods.add(clientAuthenticationMethod.getValue()));*/
+
+        clientAuthenticationMethods.add("client_secret_basic,client_secret_post");
 
         List<String> authorizationGrantTypes = new ArrayList<>(registeredClient.getAuthorizationGrantTypes().size());
         registeredClient
@@ -107,7 +111,7 @@ public class JpaRegisteredClientRepository implements RegisteredClientRepository
                 registeredClient.getClientId(),
                 registeredClient.getClientSecret(),
                 registeredClient.getClientIdIssuedAt(),
-                registeredClient.getClientSecretExpiresAt(),
+                LocalDateTime.of(9999, 12, 31, 0, 0).toInstant(ZoneOffset.UTC),
                 registeredClient.getClientName(),
                 StringUtils.collectionToCommaDelimitedString(clientAuthenticationMethods),
                 StringUtils.collectionToCommaDelimitedString(authorizationGrantTypes),

@@ -98,13 +98,13 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
         if (authorization == null) throw new IllegalArgumentException("authorization cannot be null");
         boolean isExists = authorizationRepository.existsByAuthorizationId(authorization.getId());
         if (!isExists) {
-            Authorization authorizationEntity = toEntity(authorization);
-            AuthorizationCode authorizationCode = toEntity2(authorization, authorizationEntity);
-            AccessToken accessToken = toEntity3(authorization, authorizationEntity);
-            RefreshToken refreshToken = toEntity4(authorization, authorizationEntity);
-            OidcToken oidcToken = toEntity5(authorization, authorizationEntity);
-            UserCode userCode = toEntity6(authorization, authorizationEntity);
-            DeviceCode deviceCode = toEntity7(authorization, authorizationEntity);
+            Authorization authorizationEntity = toAuthEntity(authorization);
+            AuthorizationCode authorizationCode = toAuthCodeEntity(authorization, authorizationEntity);
+            AccessToken accessToken = toAccessTokenEntity(authorization, authorizationEntity);
+            RefreshToken refreshToken = toRefreshTokenEntity(authorization, authorizationEntity);
+            OidcToken oidcToken = toOidcTokenEntity(authorization, authorizationEntity);
+            UserCode userCode = toUserCodeEntity(authorization, authorizationEntity);
+            DeviceCode deviceCode = toDeviceCodeEntity(authorization, authorizationEntity);
             authorizationRepository.save(authorizationEntity);
             authorizationRepository.flush();
             if (authorizationCode != null) authorizationCodeRepository.save(authorizationCode);
@@ -224,7 +224,7 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
         return builder.build();
     }
 
-    private Authorization toEntity(OAuth2Authorization authorization) {
+    private Authorization toAuthEntity(OAuth2Authorization authorization) {
         return new Authorization(
                 authorization.getId(),
                 authorization.getRegisteredClientId(),
@@ -236,7 +236,7 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
         );
     }
 
-    private AuthorizationCode toEntity2(OAuth2Authorization authorization, Authorization authorizationEntity) {
+    private AuthorizationCode toAuthCodeEntity(OAuth2Authorization authorization, Authorization authorizationEntity) {
         OAuth2Authorization.Token<OAuth2AuthorizationCode> authorizationCode = authorization.getToken(OAuth2AuthorizationCode.class);
         if (authorizationCode == null) return null;
         OAuth2Token token = authorizationCode.getToken();
@@ -249,7 +249,7 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
         );
     }
 
-    private AccessToken toEntity3(OAuth2Authorization authorization, Authorization authorizationEntity) {
+    private AccessToken toAccessTokenEntity(OAuth2Authorization authorization, Authorization authorizationEntity) {
         OAuth2Authorization.Token<OAuth2AccessToken> accessToken = authorization.getToken(OAuth2AccessToken.class);
         if (accessToken == null) return null;
         OAuth2Token token = accessToken.getToken();
@@ -267,7 +267,7 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
         return accessTokenEntity;
     }
 
-    private RefreshToken toEntity4(OAuth2Authorization authorization, Authorization authorizationEntity) {
+    private RefreshToken toRefreshTokenEntity(OAuth2Authorization authorization, Authorization authorizationEntity) {
         OAuth2Authorization.Token<OAuth2RefreshToken> refreshToken = authorization.getToken(OAuth2RefreshToken.class);
         if (refreshToken == null) return null;
         OAuth2Token token = refreshToken.getToken();
@@ -280,7 +280,7 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
         );
     }
 
-    private OidcToken toEntity5(OAuth2Authorization authorization, Authorization authorizationEntity) {
+    private OidcToken toOidcTokenEntity(OAuth2Authorization authorization, Authorization authorizationEntity) {
         OAuth2Authorization.Token<OidcIdToken> oidcIdToken = authorization.getToken(OidcIdToken.class);
         if (oidcIdToken == null) return null;
         OAuth2Token token = oidcIdToken.getToken();
@@ -294,7 +294,7 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
         );
     }
 
-    private UserCode toEntity6(OAuth2Authorization authorization, Authorization authorizationEntity) {
+    private UserCode toUserCodeEntity(OAuth2Authorization authorization, Authorization authorizationEntity) {
         OAuth2Authorization.Token<OAuth2UserCode> userCode = authorization.getToken(OAuth2UserCode.class);
         if (userCode == null) return null;
         OAuth2Token token = userCode.getToken();
@@ -307,7 +307,7 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
         );
     }
 
-    private DeviceCode toEntity7(OAuth2Authorization authorization, Authorization authorizationEntity) {
+    private DeviceCode toDeviceCodeEntity(OAuth2Authorization authorization, Authorization authorizationEntity) {
         OAuth2Authorization.Token<OAuth2DeviceCode> deviceCode = authorization.getToken(OAuth2DeviceCode.class);
         if (deviceCode == null) return null;
         OAuth2Token token = deviceCode.getToken();
