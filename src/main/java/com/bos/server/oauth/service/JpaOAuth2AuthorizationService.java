@@ -48,8 +48,7 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
     private final OidcTokenRepository oidcTokenRepository;
     private final DeviceCodeRepository deviceCodeRepository;
     private final UserCodeRepository userCodeRepository;
-    private final ResourceOwnerRepository resourceOwnerRepository;
-    private final PasswordEncoder bcryptPasswordEncoder;
+
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -73,23 +72,12 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
         this.objectMapper.registerModules(securityModules);
         this.objectMapper.registerModule(new OAuth2AuthorizationServerJackson2Module());
 
-
         this.authorizationCodeRepository = authorizationCodeRepository;
         this.accessTokenRepository = accessTokenRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.oidcTokenRepository = oidcTokenRepository;
         this.deviceCodeRepository = deviceCodeRepository;
         this.userCodeRepository = userCodeRepository;
-        this.resourceOwnerRepository = resourceOwnerRepository;
-        this.bcryptPasswordEncoder = passwordEncoder;
-    }
-
-    @Transactional(readOnly = true)
-    public ResourceOwnerDto login(String roId, String password) {
-        ResourceOwner resourceOwner = resourceOwnerRepository.findByResourceOwnerId(roId);
-        if (resourceOwner == null) throw new BizException(ResourceOwnerCrudErrorCode.RO_NOT_FOUND);
-        resourceOwner.login(bcryptPasswordEncoder, password);
-        return ResourceOwnerDto.toObject(resourceOwner);
     }
 
 

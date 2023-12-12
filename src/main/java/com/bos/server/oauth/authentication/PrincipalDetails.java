@@ -1,5 +1,6 @@
 package com.bos.server.oauth.authentication;
 
+import com.bos.server.oauth.model.dto.ResourceOwnerDto;
 import com.bos.server.oauth.model.entity.ResourceOwner;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
@@ -18,24 +19,24 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PrincipalDetails implements UserDetails, OAuth2User {
 
-    private final ResourceOwner resourceOwner;
+    private final ResourceOwnerDto resourceOwner;
     private Map<String, Object> attributes;
     private Collection<? extends GrantedAuthority> authorities;
 
-    public PrincipalDetails(ResourceOwner resourceOwner) {
+    public PrincipalDetails(ResourceOwnerDto resourceOwner) {
         this.resourceOwner = resourceOwner;
     }
 
     @ConstructorProperties({"resourceOwner", "attributes"})
-    public PrincipalDetails(ResourceOwner resourceOwner, Map<String, Object> attributes) {
+    public PrincipalDetails(ResourceOwnerDto resourceOwner, Map<String, Object> attributes) {
         this.resourceOwner = resourceOwner;
         this.attributes = attributes;
     }
 
     public void setAuthorities(List<?> authorities) {
-        if (resourceOwner.getRoles() == null) return;
+        if (resourceOwner.roles() == null) return;
         List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-        List<String> roles = List.of(resourceOwner.getRoles().split(","));
+        List<String> roles = List.of(resourceOwner.roles().split(","));
         roles.forEach(role -> grantedAuthorities.add(new SimpleGrantedAuthority(role)));
         this.authorities = grantedAuthorities;
     }
@@ -52,12 +53,12 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
 
     @Override
     public String getPassword() {
-        return resourceOwner.getPassword();
+        return resourceOwner.password();
     }
 
     @Override
     public String getUsername() {
-        return resourceOwner.getResourceOwnerId();
+        return resourceOwner.roId();
     }
 
     @Override
@@ -82,6 +83,6 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
 
     @Override
     public String getName() {
-        return resourceOwner.getResourceOwnerId();
+        return resourceOwner.roId();
     }
 }
