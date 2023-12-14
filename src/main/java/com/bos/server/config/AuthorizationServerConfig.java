@@ -55,8 +55,14 @@ public class AuthorizationServerConfig {
                         .authorizationResponseHandler(authenticationSuccessHandler())
                         .errorResponseHandler((request, response, exception) -> response.sendError(HttpServletResponse.SC_BAD_REQUEST)));
         http.exceptionHandling((exceptions) -> exceptions.defaultAuthenticationEntryPointFor(
-                new LoginUrlAuthenticationEntryPoint("/login"),
-                new MediaTypeRequestMatcher(MediaType.TEXT_HTML)));
+                        new LoginUrlAuthenticationEntryPoint("/login"),
+                        new MediaTypeRequestMatcher(MediaType.TEXT_HTML)));
+
+/*        http.exceptionHandling((exceptions) -> exceptions.defaultAuthenticationEntryPointFor(
+                new LoginUrlAuthenticationEntryPoint("/oauth2/login"),
+                new MediaTypeRequestMatcher(MediaType.TEXT_HTML))
+                .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/users/login"))
+        );*/
 
         // Accept access tokens for User Info and/or Client Registration
         http.oauth2ResourceServer((oauth2) -> oauth2.jwt(withDefaults()));
@@ -65,7 +71,7 @@ public class AuthorizationServerConfig {
 
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
-        return AuthorizationServerSettings.builder().build();
+        return AuthorizationServerSettings.builder().issuer("http://127.0.0.1:9000").build();
     }
 
     @Bean

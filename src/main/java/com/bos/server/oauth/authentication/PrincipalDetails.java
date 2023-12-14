@@ -10,35 +10,31 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.beans.ConstructorProperties;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PrincipalDetails implements UserDetails, OAuth2User {
 
-    private final ResourceOwnerDto resourceOwner;
+    private final String username;
+    private final String password;
     private Map<String, Object> attributes;
     private Collection<? extends GrantedAuthority> authorities;
 
     public PrincipalDetails(ResourceOwnerDto resourceOwner) {
-        this.resourceOwner = resourceOwner;
+        this.username = resourceOwner.roId();
+        this.password = resourceOwner.password();
     }
 
     @ConstructorProperties({"resourceOwner", "attributes"})
     public PrincipalDetails(ResourceOwnerDto resourceOwner, Map<String, Object> attributes) {
-        this.resourceOwner = resourceOwner;
+        this.username = resourceOwner.roId();
+        this.password = resourceOwner.password();
         this.attributes = attributes;
     }
 
     public void setAuthorities(List<?> authorities) {
-        if (resourceOwner.roles() == null) return;
-        List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-        List<String> roles = List.of(resourceOwner.roles().split(","));
-        roles.forEach(role -> grantedAuthorities.add(new SimpleGrantedAuthority(role)));
-        this.authorities = grantedAuthorities;
+        this.authorities = Collections.emptyList();
     }
 
     @Override
@@ -53,12 +49,12 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
 
     @Override
     public String getPassword() {
-        return resourceOwner.password();
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return resourceOwner.roId();
+        return username;
     }
 
     @Override
@@ -83,6 +79,6 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
 
     @Override
     public String getName() {
-        return resourceOwner.roId();
+        return username;
     }
 }

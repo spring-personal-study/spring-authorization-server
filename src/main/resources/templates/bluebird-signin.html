@@ -6,19 +6,23 @@
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
           crossorigin="anonymous">
-    <title>login page</title>
+    <title>bluebird login page</title>
 </head>
 <body>
 <script>
     function login() {
-        var username = document.getElementById("username").value;
-        var password = document.getElementById("password").value;
-        var data = {
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        console.log('username_tag::', document.getElementById("username"))
+        console.log('username::', username)
+        console.log('password::', password)
+
+        const data = {
             username: username,
             password: password
         };
 
-        fetch("/login", {
+        fetch("/users/sign-in", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
@@ -27,6 +31,7 @@
         })
             .then(response => {
                 if (response.ok) {
+                    console.log(response)
                     return response.json();
                 } else {
                     throw new Error('Login failed');
@@ -47,7 +52,7 @@
 </script>
 <div class="container">
     <div class="card" style="width: 350px; margin-left: auto; margin-right: auto; border: none;">
-        <h1 class="display-4">Please Login</h1>
+        <h1 class="display-4">Bluebird Login</h1>
 
         <div class="form-group">
             <label for="username">Username</label>

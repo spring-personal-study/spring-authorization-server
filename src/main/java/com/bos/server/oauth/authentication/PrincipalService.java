@@ -1,7 +1,5 @@
 package com.bos.server.oauth.authentication;
 
-import com.bos.server.oauth.repository.resourceowner.ResourceOwnerRepository;
-import com.bos.server.oauth.service.JpaOAuth2AuthorizationService;
 import com.bos.server.oauth.service.JpaOauth2ResourceOwnerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetailsService;

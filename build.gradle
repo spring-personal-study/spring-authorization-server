@@ -2,7 +2,6 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.0'
     id 'io.spring.dependency-management' version '1.1.4'
-    id 'org.jetbrains.kotlin.jvm'
 }
 
 group = 'com.bos'
@@ -39,17 +38,11 @@ dependencies {
 
     // json serializer
     implementation 'org.apache.commons:commons-lang3:3.14.0'
-    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+    //implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
     //runtimeOnly 'com.nimbusds:oauth2-oidc-sdk:11.7.1'
-}
-
-tasks.named('bootBuildImage') {
-    builder = 'paketobuildpacks/builder-jammy-base:latest'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
 }
-kotlin {
-    jvmToolchain(17)
-}
+

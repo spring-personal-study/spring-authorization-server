@@ -49,7 +49,6 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
     private final DeviceCodeRepository deviceCodeRepository;
     private final UserCodeRepository userCodeRepository;
 
-
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public JpaOAuth2AuthorizationService(
@@ -60,9 +59,7 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
             RefreshTokenRepository refreshTokenRepository,
             OidcTokenRepository oidcTokenRepository,
             DeviceCodeRepository deviceCodeRepository,
-            UserCodeRepository userCodeRepository,
-            ResourceOwnerRepository resourceOwnerRepository,
-            PasswordEncoder passwordEncoder
+            UserCodeRepository userCodeRepository
     ) {
         this.authorizationRepository = authorizationRepository;
         this.jpaRegisteredClientRepository = registeredClientRepository;
