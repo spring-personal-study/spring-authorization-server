@@ -4,9 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.id.UUIDGenerator;
-import org.hibernate.id.uuid.UuidGenerator;
 
 import java.time.LocalDateTime;
 

@@ -1,6 +1,5 @@
 package com.bos.server.oauth.repository.authorization.querydsl;
 
-import com.bos.server.oauth.model.entity.Authorization;
 import com.bos.server.oauth.model.entity.*;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
