@@ -50,18 +50,14 @@ public class AuthorizationServerConfig {
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 .oidc(oidc -> oidc.clientRegistrationEndpoint(
                         clientRegistrationEndpoint ->
-                                clientRegistrationEndpoint.authenticationProviders(configureCustomClientMetadataConverters())))
-                .authorizationEndpoint(authorizationEndpoint -> authorizationEndpoint
+                                clientRegistrationEndpoint.authenticationProviders(configureCustomClientMetadataConverters())));
+                /*.authorizationEndpoint(authorizationEndpoint -> authorizationEndpoint
                         .authenticationProvider(authenticationProvider)
                         .authorizationResponseHandler(authenticationSuccessHandler())
-                        .errorResponseHandler((request, response, exception) -> response.sendError(HttpServletResponse.SC_BAD_REQUEST)));
-       /* http.exceptionHandling((exceptions) -> exceptions.defaultAuthenticationEntryPointFor(
-                        new LoginUrlAuthenticationEntryPoint("/login"),
-                        new MediaTypeRequestMatcher(MediaType.TEXT_HTML)));*/
+                        .errorResponseHandler((request, response, exception) -> response.sendError(HttpServletResponse.SC_BAD_REQUEST)));*/
 
-        http.exceptionHandling((exceptions) -> exceptions.defaultAuthenticationEntryPointFor(
-                new LoginUrlAuthenticationEntryPoint("/login"),
-                new MediaTypeRequestMatcher(MediaType.TEXT_HTML)));
+        http.exceptionHandling((exceptions) -> exceptions.authenticationEntryPoint(
+                new LoginUrlAuthenticationEntryPoint("/login")));
 
 
         // Accept access tokens for User Info and/or Client Registration
