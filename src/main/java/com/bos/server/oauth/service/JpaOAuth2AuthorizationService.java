@@ -1,8 +1,5 @@
 package com.bos.server.oauth.service;
 
-import com.bos.server.config.exception.common.BizException;
-import com.bos.server.oauth.exception.ResourceOwnerCrudErrorCode;
-import com.bos.server.oauth.model.dto.ResourceOwnerDto;
 import com.bos.server.oauth.model.entity.*;
 import com.bos.server.oauth.repository.accesstoken.AccessTokenRepository;
 import com.bos.server.oauth.repository.authoricationcode.AuthorizationCodeRepository;
@@ -10,14 +7,12 @@ import com.bos.server.oauth.repository.authorization.AuthorizationRepository;
 import com.bos.server.oauth.repository.devicecode.DeviceCodeRepository;
 import com.bos.server.oauth.repository.oidctoken.OidcTokenRepository;
 import com.bos.server.oauth.repository.refreshtoken.RefreshTokenRepository;
-import com.bos.server.oauth.repository.resourceowner.ResourceOwnerRepository;
 import com.bos.server.oauth.repository.usercode.UserCodeRepository;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.dao.DataRetrievalFailureException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.oauth2.core.*;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
@@ -31,7 +26,6 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.jackson2.OAuth2AuthorizationServerJackson2Module;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -81,24 +75,32 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
     @Override
     public void save(OAuth2Authorization authorization) {
         if (authorization == null) throw new IllegalArgumentException("authorization cannot be null");
-        boolean isExists = authorizationRepository.existsByAuthorizationId(authorization.getId());
-        if (!isExists) {
-            Authorization authorizationEntity = toAuthEntity(authorization);
-            AuthorizationCode authorizationCode = toAuthCodeEntity(authorization, authorizationEntity);
-            AccessToken accessToken = toAccessTokenEntity(authorization, authorizationEntity);
-            RefreshToken refreshToken = toRefreshTokenEntity(authorization, authorizationEntity);
-            OidcToken oidcToken = toOidcTokenEntity(authorization, authorizationEntity);
-            UserCode userCode = toUserCodeEntity(authorization, authorizationEntity);
-            DeviceCode deviceCode = toDeviceCodeEntity(authorization, authorizationEntity);
+        boolean isAuthorizationExist = authorizationRepository.existsByAuthorizationId(authorization.getId());
+        Authorization authorizationEntity = toAuthEntity(authorization);
+        if (!isAuthorizationExist) {
             authorizationRepository.save(authorizationEntity);
             authorizationRepository.flush();
-            if (authorizationCode != null) authorizationCodeRepository.save(authorizationCode);
-            if (accessToken != null) accessTokenRepository.save(accessToken);
-            if (refreshToken != null) refreshTokenRepository.save(refreshToken);
-            if (oidcToken != null) oidcTokenRepository.save(oidcToken);
-            if (userCode != null) userCodeRepository.save(userCode);
-            if (deviceCode != null) deviceCodeRepository.save(deviceCode);
         }
+        AuthorizationCode authorizationCode = toAuthCodeEntity(authorization, authorizationEntity);
+        AccessToken accessToken = toAccessTokenEntity(authorization, authorizationEntity);
+        RefreshToken refreshToken = toRefreshTokenEntity(authorization, authorizationEntity);
+        OidcToken oidcToken = toOidcTokenEntity(authorization, authorizationEntity);
+        UserCode userCode = toUserCodeEntity(authorization, authorizationEntity);
+        DeviceCode deviceCode = toDeviceCodeEntity(authorization, authorizationEntity);
+
+        Boolean isAuthorizationCodeExist = authorizationCodeRepository.existsByAuthorization(authorizationEntity);
+        Boolean isAccessTokenExist = accessTokenRepository.existsByAuthorization(authorizationEntity);
+        Boolean isRefreshTokenExist = refreshTokenRepository.existsByAuthorization(authorizationEntity);
+        Boolean isOidcTokenExist = oidcTokenRepository.existsByAuthorization(authorizationEntity);
+        Boolean isUserCodeExist = userCodeRepository.existsByAuthorization(authorizationEntity);
+        Boolean isDeviceCodeExist = deviceCodeRepository.existsByAuthorization(authorizationEntity);
+
+        if (!isAuthorizationCodeExist && authorizationCode != null) authorizationCodeRepository.save(authorizationCode);
+        if (!isAccessTokenExist && accessToken != null) accessTokenRepository.save(accessToken);
+        if (!isRefreshTokenExist && refreshToken != null) refreshTokenRepository.save(refreshToken);
+        if (!isOidcTokenExist && oidcToken != null) oidcTokenRepository.save(oidcToken);
+        if (!isUserCodeExist && userCode != null) userCodeRepository.save(userCode);
+        if (!isDeviceCodeExist && deviceCode != null) deviceCodeRepository.save(deviceCode);
     }
 
     @Override
