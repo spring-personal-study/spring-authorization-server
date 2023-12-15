@@ -1,5 +1,6 @@
 package com.bos.server.oauth.authentication;
 
+import com.bos.server.oauth.model.dto.ResourceOwnerDto;
 import com.bos.server.oauth.service.JpaOauth2ResourceOwnerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,6 +14,7 @@ public class PrincipalService implements UserDetailsService {
 
     @Override
     public PrincipalDetails loadUserByUsername(String roId) {
-        return new PrincipalDetails(resourceOwnerService.findByResourceOwnerId(roId));
+        ResourceOwnerDto resourceOwner = resourceOwnerService.findByResourceOwnerId(roId);
+        return new PrincipalDetails(resourceOwner);
     }
 }

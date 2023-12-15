@@ -2,6 +2,7 @@ package com.bos.server.config;
 
 import com.bos.server.oauth.filter.IdPwAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -10,6 +11,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -31,23 +33,15 @@ public class SecurityConfig {
     @Bean
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests((authorize) -> authorize
-               // .requestMatchers(new AntPathRequestMatcher("/users/login")).permitAll()
-//                .requestMatchers(new AntPathRequestMatcher("/oauth2/login")).permitAll()
-                .anyRequest().authenticated());
+        http.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated());
         http.formLogin(withDefaults());
-       /* http.formLogin(e -> e
-                .usernameParameter("username")
-                .passwordParameter("password")
-                .loginPage("/oauth2/login")
-                .loginProcessingUrl("/oauth2/sign-in")
-                .permitAll()
-        );*/
+        //http.formLogin(e -> e.loginPage("/login").permitAll());
         //http.with(new AuthDsl(), withDefaults());
-        http.httpBasic(AbstractHttpConfigurer::disable);
+        //http.httpBasic(AbstractHttpConfigurer::disable);
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setUserDetailsService(userDetailsService);
         http.authenticationProvider(daoAuthenticationProvider);
+        //http.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }

@@ -4,6 +4,7 @@ import com.bos.server.oauth.model.dto.ResourceOwnerDto;
 import com.bos.server.oauth.model.entity.ResourceOwner;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,25 +17,19 @@ import java.util.*;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PrincipalDetails implements UserDetails, OAuth2User {
 
-    private final String username;
-    private final String password;
+    private final ResourceOwnerDto resourceOwner;
     private Map<String, Object> attributes;
-    private Collection<? extends GrantedAuthority> authorities;
+    @Setter
+    private Collection<? extends GrantedAuthority> authorities = Collections.emptyList();
 
     public PrincipalDetails(ResourceOwnerDto resourceOwner) {
-        this.username = resourceOwner.roId();
-        this.password = resourceOwner.password();
+        this.resourceOwner = resourceOwner;
     }
 
     @ConstructorProperties({"resourceOwner", "attributes"})
     public PrincipalDetails(ResourceOwnerDto resourceOwner, Map<String, Object> attributes) {
-        this.username = resourceOwner.roId();
-        this.password = resourceOwner.password();
+        this.resourceOwner = resourceOwner;
         this.attributes = attributes;
-    }
-
-    public void setAuthorities(List<?> authorities) {
-        this.authorities = Collections.emptyList();
     }
 
     @Override
@@ -49,12 +44,12 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
 
     @Override
     public String getPassword() {
-        return password;
+        return resourceOwner.password();
     }
 
     @Override
     public String getUsername() {
-        return username;
+        return resourceOwner.roId();
     }
 
     @Override
@@ -79,6 +74,6 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
 
     @Override
     public String getName() {
-        return username;
+        return resourceOwner.roId();
     }
 }
