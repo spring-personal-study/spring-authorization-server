@@ -33,6 +33,7 @@ CREATE TABLE oauth_authorization
     authorized_scopes        varchar(1000) DEFAULT NULL,
     `attributes`             varchar(4000) DEFAULT NULL,
     state                    varchar(500)  DEFAULT NULL,
+    created_at               datetime      DEFAULT NOW() NOT NULL,
     PRIMARY KEY (id)
 );
 
