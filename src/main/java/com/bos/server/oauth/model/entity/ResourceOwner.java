@@ -21,4 +21,9 @@ public class ResourceOwner {
     @Column(name = "PASSWORD", length = 500, nullable = false)
     private String password;
 
+    public ResourceOwner(Long id, String resourceOwnerId, String password) {
+        this.id = id;
+        this.resourceOwnerId = resourceOwnerId;
+        this.password = password;
+    }
 }
