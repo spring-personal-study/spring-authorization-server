@@ -7,12 +7,21 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
+import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
+import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 
-import static org.springframework.security.config.Customizer.withDefaults;
+import java.util.Set;
+
+import static java.util.stream.Collectors.toSet;
 
 @RequiredArgsConstructor
 @Configuration
@@ -24,33 +33,42 @@ public class SecurityConfig {
     @Bean
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated());
-        http.formLogin(withDefaults());
-        //http.formLogin(e -> e.loginPage("/login").permitAll());
-        //http.with(new AuthDsl(), withDefaults());
-        //http.httpBasic(AbstractHttpConfigurer::disable);
+        http.authorizeHttpRequests((authorize) -> {
+            authorize.requestMatchers("/error").permitAll();
+            authorize.anyRequest().authenticated();
+        });
+        http.formLogin(formLogin -> formLogin.loginPage("/login").permitAll());
+
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setUserDetailsService(userDetailsService);
         http.authenticationProvider(daoAuthenticationProvider);
-        //http.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-   /* public static class AuthDsl extends AbstractHttpConfigurer<AuthDsl, HttpSecurity> {
+    @Bean
+    WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.debug(false)
+                .ignoring()
+                .requestMatchers("/webjars/**", "/images/**", "/css/**", "/assets/**", "/favicon.ico");
+    }
 
-        @Override
-        public void configure(HttpSecurity http) {
-            AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
-
-            DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = http
-                    .getSharedObject(DefaultLoginPageGeneratingFilter.class);
-            http.addFilterBefore(new IdPwAuthenticationFilter("/users/sign-in", authenticationManager), UsernamePasswordAuthenticationFilter.class);
-        }
-    }*/
+    @Bean
+    OAuth2TokenCustomizer<JwtEncodingContext> jwtCustomizer() {
+        return (context) -> {
+            Authentication principal = context.getPrincipal();
+            if (OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType())) {
+                Set<String> authorities = principal.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .collect(toSet());
+                context.getClaims().claim("authorities", authorities);
+            }
+        };
+    }
 }

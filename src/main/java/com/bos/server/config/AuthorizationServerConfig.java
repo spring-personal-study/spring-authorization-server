@@ -1,15 +1,18 @@
 package com.bos.server.config;
 
 import com.bos.server.oauth.authentication.CustomAuthenticationProvider;
+import com.bos.server.oauth.service.JpaOAuth2AuthorizationConsentService;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -20,6 +23,7 @@ import org.springframework.security.oauth2.server.authorization.settings.Authori
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -38,6 +42,7 @@ import static org.springframework.util.StringUtils.hasText;
 public class AuthorizationServerConfig {
 
     private final CustomAuthenticationProvider authenticationProvider;
+    private final JpaOAuth2AuthorizationConsentService authorizationConsentService;
 
     @Bean
     @Order(1)
@@ -46,15 +51,17 @@ public class AuthorizationServerConfig {
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 .oidc(oidc -> oidc.clientRegistrationEndpoint(
                         clientRegistrationEndpoint ->
-                                clientRegistrationEndpoint.authenticationProviders(configureCustomClientMetadataConverters())));
-                /*.authorizationEndpoint(authorizationEndpoint -> authorizationEndpoint
+                                clientRegistrationEndpoint.authenticationProviders(configureCustomClientMetadataConverters())))
+                .authorizationEndpoint(authorizationEndpoint -> authorizationEndpoint
                         .authenticationProvider(authenticationProvider)
+                        .consentPage("/oauth/consent")
                         .authorizationResponseHandler(authenticationSuccessHandler())
-                        .errorResponseHandler((request, response, exception) -> response.sendError(HttpServletResponse.SC_BAD_REQUEST)));*/
+                        .errorResponseHandler((request, response, exception) -> response.sendError(HttpServletResponse.SC_BAD_REQUEST)));
 
-        http.exceptionHandling((exceptions) -> exceptions.authenticationEntryPoint(
-                new LoginUrlAuthenticationEntryPoint("/login")));
-
+        http.exceptionHandling((exceptions) -> exceptions.defaultAuthenticationEntryPointFor(
+                new LoginUrlAuthenticationEntryPoint("/login"),
+                new MediaTypeRequestMatcher(MediaType.TEXT_HTML))
+        );
 
         // Accept access tokens for User Info and/or Client Registration
         http.oauth2ResourceServer((oauth2) -> oauth2.jwt(withDefaults()));
@@ -108,32 +115,4 @@ public class AuthorizationServerConfig {
     public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
         return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
     }
-
-/*    @Bean
-    public OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer() {
-        return context -> {
-            Authentication principal = context.getPrincipal();
-
-            if (context.getTokenType().equals(OAuth2TokenType.ACCESS_TOKEN)) {
-                PrincipalDetails details = (PrincipalDetails) principal.getPrincipal();
-
-                context.getClaims()
-                        .claim("id", details.getResourceOwner().getId())
-                        .claim("authorities", details.getAuthorities()
-                                .stream()
-                                .map(GrantedAuthority::getAuthority)
-                                .collect(Collectors.toSet()));
-            }
-        };
-    }
-
-    @Bean
-    OAuth2TokenGenerator<?> tokenGenerator(JWKSource<SecurityContext> jwkSource) {
-        JwtGenerator jwtGenerator = new JwtGenerator(new NimbusJwtEncoder(jwkSource));
-        jwtGenerator.setJwtCustomizer(tokenCustomizer());
-        OAuth2AccessTokenGenerator accessTokenGenerator = new OAuth2AccessTokenGenerator();
-        OAuth2RefreshTokenGenerator refreshTokenGenerator = new OAuth2RefreshTokenGenerator();
-        return new DelegatingOAuth2TokenGenerator(
-                jwtGenerator, accessTokenGenerator, refreshTokenGenerator);
-    }*/
 }

@@ -39,7 +39,7 @@ dependencies {
 
     // json serializer
     implementation 'org.apache.commons:commons-lang3:3.14.0'
-    //implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
     //runtimeOnly 'com.nimbusds:oauth2-oidc-sdk:11.7.1'
 
     // h2
