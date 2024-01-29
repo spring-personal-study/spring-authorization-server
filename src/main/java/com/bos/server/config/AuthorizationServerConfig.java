@@ -16,12 +16,9 @@ import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
-import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
@@ -29,12 +26,10 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Objects;
 import java.util.UUID;
 
 import static com.bos.server.config.CustomClientMetadataConfig.configureCustomClientMetadataConverters;
 import static org.springframework.security.config.Customizer.withDefaults;
-import static org.springframework.util.StringUtils.hasText;
 
 @EnableWebSecurity
 @Configuration
@@ -55,8 +50,9 @@ public class AuthorizationServerConfig {
                 .authorizationEndpoint(authorizationEndpoint -> authorizationEndpoint
                         .authenticationProvider(authenticationProvider)
                         .consentPage("/oauth/consent")
-                        .authorizationResponseHandler(authenticationSuccessHandler())
-                        .errorResponseHandler((request, response, exception) -> response.sendError(HttpServletResponse.SC_BAD_REQUEST)));
+                        //.authorizationResponseHandler(authenticationSuccessHandler())
+                        .errorResponseHandler((request, response, exception) -> response.sendError(HttpServletResponse.SC_BAD_REQUEST)))
+                .authorizationConsentService(authorizationConsentService);
 
         http.exceptionHandling((exceptions) -> exceptions.defaultAuthenticationEntryPointFor(
                 new LoginUrlAuthenticationEntryPoint("/login"),
@@ -69,12 +65,12 @@ public class AuthorizationServerConfig {
         return http.build();
     }
 
-    @Bean
+/*    @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder().issuer("http://127.0.0.1:9000").build();
-    }
+    }*/
 
-    @Bean
+  /*  @Bean
     public AuthenticationSuccessHandler authenticationSuccessHandler() {
         return (request, response, authentication) -> {
             OAuth2AuthorizationCodeRequestAuthenticationToken auth = (OAuth2AuthorizationCodeRequestAuthenticationToken) authentication;
@@ -84,7 +80,7 @@ public class AuthorizationServerConfig {
             }
             response.sendRedirect(auth.getRedirectUri() + "?code=" + Objects.requireNonNull(auth.getAuthorizationCode()).getTokenValue());
         };
-    }
+    }*/
 
     @Bean
     public JWKSource<SecurityContext> jwkSource() {

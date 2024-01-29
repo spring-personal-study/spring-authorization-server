@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.springframework.util.StringUtils.trimAllWhitespace;
+
 @Component
 public class JpaRegisteredClientRepository implements RegisteredClientRepository {
     private final ClientRepository clientRepository;
@@ -67,7 +69,7 @@ public class JpaRegisteredClientRepository implements RegisteredClientRepository
         RegisteredClient.Builder builder = RegisteredClient.withId(String.valueOf(client.getId()))
                 .clientId(client.getClientId())
                 .clientIdIssuedAt(Instant.from(client.getClientIdIssuedAt()))
-                .clientSecret(client.getClientSecret())
+                .clientSecret(client.getClientSecret() == null || trimAllWhitespace(client.getClientSecret()).isEmpty() ? null : client.getClientSecret())
                 .clientSecretExpiresAt(Instant.from(client.getClientSecretExpiresAt()))
                 .clientName(client.getClientName())
                 .clientAuthenticationMethods(authenticationMethods ->
@@ -95,7 +97,8 @@ public class JpaRegisteredClientRepository implements RegisteredClientRepository
                 .getClientAuthenticationMethods()
                 .forEach(clientAuthenticationMethod -> clientAuthenticationMethods.add(clientAuthenticationMethod.getValue()));*/
 
-        clientAuthenticationMethods.add("client_secret_basic,client_secret_post");
+        // TODO: change to public client. set to "none". but client_secret_post is for secret client. -> client_secret_basic is used for client_credentials.
+        clientAuthenticationMethods.add("client_secret_post");
 
         List<String> authorizationGrantTypes = new ArrayList<>(registeredClient.getAuthorizationGrantTypes().size());
         registeredClient
