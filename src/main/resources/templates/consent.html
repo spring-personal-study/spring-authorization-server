@@ -2,35 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-          integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
     <title>Custom consent page - Consent required</title>
-    <style>
-        body {
-            background-color: #f6f8fa;
-        }
-
-        #submit-consent {
-            width: 45%;
-            float: right;
-            height: 40px;
-            font-size: 18px;
-            border-color: #cccccc;
-            margin-right: 3%;
-        }
-
-        #cancel-consent {
-            width: 45%;
-            height: 40px;
-            font-size: 18px;
-            color: black;
-            background-color: #cccccc;
-            border-color: #cccccc;
-            float: left;
-            margin-left: 3%;
-        }
-    </style>
     <script>
         function cancelConsent() {
             document.consent_form.reset();
@@ -39,7 +13,73 @@
     </script>
 </head>
 <body>
-<div style="width: 500px;height: 600px;margin: 100px auto">
+<div class="container mx-auto px-5">
+    <!-- 모달 헤더 -->
+    <div class="flex justify-center items-center">
+        <div class="flex items-center space-x-1 p-5">
+            <img src="./assets/bluebird_brand_logo.png" />
+            <p class="text-2xl font-bold text-[#009fe3]">Bluebird</p>
+        </div>
+    </div>
+    <h5 style="text-align: center"><b th:text="${clientName}"></b> wants to access following permissions:</h5>
+    <div class="container mt-5">
+        <form name="consent_form" method="post" action="/oauth2/authorize">
+            <input type="hidden" name="client_id" th:value="${clientId}">
+            <input type="hidden" name="state" th:value="${state}">
+            <ul class="w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <li th:each="scope: ${scopes}" class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600">
+                    <div class="flex items-center ps-3">
+                        <input
+                                name="scope"
+                                type="checkbox"
+                                th:value="${scope.scope}"
+                                th:id="${scope.scope}"
+                                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 py-2"
+                                checked
+                        />
+                        <label
+                                class="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                th:for="${scope.scope}"
+                                th:text="${scope.scope}=='profile'?(${scope.description}+'('+${principalName}+')'):${scope.description}"
+                        ></label>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="mt-5">
+                <hr />
+                <div class="my-2">
+                    <p>
+                        <b th:text="${clientName}"></b> is not installed on an account you have access to.
+                    </p>
+                </div>
+                <hr />
+            </div>
+            <div class="container mt-5">
+                <div class="flex gap-12">
+                    <input
+                            id="cancel-consent"
+                            type="button"
+                            onclick="cancelConsent()"
+                            class="w-full text-gray-600 border-2 rounded-md py-2 cursor-pointer font-semibold"
+                            value="Cancel"
+                    />
+                    <input
+                            id="submit-consent"
+                            type="submit"
+                            class="w-full bg-sky-500 hover:bg-sky-600 focus:bg-sky-600 text-white rounded-md py-2 cursor-pointer font-semibold"
+                            value="Permit"
+                    />
+                </div>
+            </div>
+            <div class="mt-5">
+                <p style="text-align: center;font-size: 14px">Redirect</p>
+                <p style="text-align: center;font-size: 14px"><b th:text="${redirectUri}"></b></p>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- <div style="width: 500px;height: 600px;margin: 100px auto">
     <h5 style="text-align: center"><b th:text="${clientName}"></b> wants to access following permissions:</h5>
     <div style="width: 100%;height: 500px;border: #cccccc 1px solid;border-radius: 10px">
         <form name="consent_form" method="post" action="/oauth2/authorize">
@@ -54,7 +94,7 @@
                        th:id="${scope.scope}"
                        checked>
                 <label class="form-check-label font-weight-bold" th:for="${scope.scope}"
-                       th:text="${scope.scope}=='profile'?(${scope.description}+'('+${principalName}+')'):${scope.description}"></label>
+                       th:text="${scope.scope}=='profile'?(${scope.description}+'('+${principalName}+')'):${scope.description}">test</label>
             </div>
 
             <hr style="width: 90%">
@@ -74,6 +114,6 @@
             </div>
         </form>
     </div>
-</div>
+</div> -->
 </body>
 </html>
