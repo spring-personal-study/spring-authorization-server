@@ -28,7 +28,6 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.UUID;
 
-import static com.bos.server.config.CustomClientMetadataConfig.configureCustomClientMetadataConverters;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @EnableWebSecurity
@@ -38,6 +37,7 @@ public class AuthorizationServerConfig {
 
     private final CustomAuthenticationProvider authenticationProvider;
     private final JpaOAuth2AuthorizationConsentService authorizationConsentService;
+    private final CustomClientMetadataConfig customClientMetadataConfig;
 
     @Bean
     @Order(1)
@@ -46,7 +46,7 @@ public class AuthorizationServerConfig {
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 .oidc(oidc -> oidc.clientRegistrationEndpoint(
                         clientRegistrationEndpoint ->
-                                clientRegistrationEndpoint.authenticationProviders(configureCustomClientMetadataConverters())))
+                                clientRegistrationEndpoint.authenticationProviders(customClientMetadataConfig.configureCustomClientMetadataConverters())))
                 .authorizationEndpoint(authorizationEndpoint -> authorizationEndpoint
                         .authenticationProvider(authenticationProvider)
                         .consentPage("/oauth/consent")

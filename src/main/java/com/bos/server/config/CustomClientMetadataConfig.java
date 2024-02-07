@@ -1,8 +1,11 @@
 package com.bos.server.config;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.oidc.OidcClientRegistration;
 import org.springframework.security.oauth2.server.authorization.oidc.authentication.OidcClientConfigurationAuthenticationProvider;
@@ -10,9 +13,12 @@ import org.springframework.security.oauth2.server.authorization.oidc.authenticat
 import org.springframework.security.oauth2.server.authorization.oidc.converter.OidcClientRegistrationRegisteredClientConverter;
 import org.springframework.security.oauth2.server.authorization.oidc.converter.RegisteredClientOidcClientRegistrationConverter;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
+import org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat;
+import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,9 +26,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Configuration
 public class CustomClientMetadataConfig {
 
-    public static Consumer<List<AuthenticationProvider>> configureCustomClientMetadataConverters() {
+    public Consumer<List<AuthenticationProvider>> configureCustomClientMetadataConverters() {
         List<String> customClientMetadata = List.of("logo_uri", "contacts");
 
         return (authenticationProviders) -> {
@@ -43,7 +50,7 @@ public class CustomClientMetadataConfig {
         };
     }
 
-    private static class CustomRegisteredClientConverter
+    private class CustomRegisteredClientConverter
             implements Converter<OidcClientRegistration, RegisteredClient> {
 
         private final List<String> customClientMetadata;
@@ -70,6 +77,7 @@ public class CustomClientMetadataConfig {
 
             return RegisteredClient.from(registeredClient)
                     .clientSettings(clientSettingsBuilder.build())
+                    .tokenSettings(tokenSettings())
                     .build();
         }
     }
@@ -99,7 +107,18 @@ public class CustomClientMetadataConfig {
 
             return OidcClientRegistration.withClaims(claims).build();
         }
-
     }
 
+    @Bean
+    public TokenSettings tokenSettings() {
+        return TokenSettings.builder()
+                .accessTokenTimeToLive(Duration.ofHours(6))
+                .refreshTokenTimeToLive(Duration.ofDays(180))
+                .authorizationCodeTimeToLive(Duration.ofMinutes(10))
+                .idTokenSignatureAlgorithm(SignatureAlgorithm.RS256)
+                .deviceCodeTimeToLive(Duration.ofMinutes(10))
+                .reuseRefreshTokens(true)
+                .accessTokenFormat(OAuth2TokenFormat.SELF_CONTAINED)
+                .build();
+    }
 }

@@ -92,13 +92,14 @@ public class JpaRegisteredClientRepository implements RegisteredClientRepository
     }
 
     private Client toEntity(RegisteredClient registeredClient) {
-        List<String> clientAuthenticationMethods = new ArrayList<>(registeredClient.getClientAuthenticationMethods().size());
+        Set<ClientAuthenticationMethod> clientAuthenticationMethods = registeredClient.getClientAuthenticationMethods();
       /*  registeredClient
                 .getClientAuthenticationMethods()
                 .forEach(clientAuthenticationMethod -> clientAuthenticationMethods.add(clientAuthenticationMethod.getValue()));*/
 
         // TODO: change to public client. set to "none". but client_secret_post is for secret client. -> client_secret_basic is used for client_credentials.
-        clientAuthenticationMethods.add("client_secret_post");
+//        clientAuthenticationMethods.add("client_secret_post");
+//        clientAuthenticationMethods.add
 
         List<String> authorizationGrantTypes = new ArrayList<>(registeredClient.getAuthorizationGrantTypes().size());
         registeredClient
