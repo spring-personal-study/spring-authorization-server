@@ -50,33 +50,28 @@ public class AuthorizationConsentController {
     private static Set<ScopeWithDescription> withDescription(Set<String> scopes) {
         Set<ScopeWithDescription> scopeWithDescriptions = new LinkedHashSet<>();
         for (String scope : scopes) {
+            if (scope.equals("openid")) {
+                continue;
+            }
             scopeWithDescriptions.add(new ScopeWithDescription(scope));
-
         }
         return scopeWithDescriptions;
     }
 
-    public static class ScopeWithDescription {
-        private static final String DEFAULT_DESCRIPTION = "cannot provide information for this permission.";
-        private static final Map<String, String> scopeDescriptions = new HashMap<>();
+    private static class ScopeWithDescription {
+        private final String DEFAULT_DESCRIPTION = "cannot provide information for this permission.";
+        private final Map<String, String> scopeDescriptions = new HashMap<>();
+        private final String scope;
+        private final String description;
 
+        /*
         static {
             scopeDescriptions.put(
                     "openid",
-                    "openid description"
-            );
-            scopeDescriptions.put(
-                    "client.read",
-                    "client.read description"
-            );
-            scopeDescriptions.put(
-                    "client.create",
-                    "client.create description"
+                    "openid is a set of permissions that allow you to authenticate with the application."
             );
         }
-
-        public final String scope;
-        public final String description;
+        */
 
         ScopeWithDescription(String scope) {
             this.scope = scope;

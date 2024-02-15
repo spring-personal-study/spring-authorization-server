@@ -1,3 +1,4 @@
+/*
 package com.bos.server.oauth.filter;
 
 import jakarta.servlet.ServletException;
@@ -46,3 +47,4 @@ public class IdPwAuthenticationFilter extends AbstractAuthenticationProcessingFi
         return (password != null) ? password.trim() : "";
     }
 }
+*/

@@ -12,6 +12,9 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.stereotype.Component;
 
+/*
+ * for checking authentication before getting authorization code
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
