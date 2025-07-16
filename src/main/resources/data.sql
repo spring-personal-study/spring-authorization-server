@@ -6,8 +6,8 @@ INSERT INTO oauth_client
 (id, client_id, client_id_issued_at, client_secret, client_secret_expires_at, client_name,
  client_authentication_methods, authorization_grant_types, redirect_uris, post_logout_redirect_uris, scopes,
  client_settings, token_settings)
-VALUES ('1', 'bluebird-test-client', '2023-12-04 00:00:00', 'bluebird-test-client-secret', '9999-12-31 00:00:00',
-        'bluebird-test-client-name', 'client_secret_basic,client_secret_post',
+VALUES ('1', 'bluebird-default-client', '2023-12-04 00:00:00', '$2a$12$tDI3S/mBdAYYEy3O.tHvFuHrsDz..QrDNtcMaQPDlLHI23tkkp4dO', '9999-12-31 00:00:00',
+        'bluebird-default-client-name', 'client_secret_basic,client_secret_post',
         'authorization_code,client_credentials,refresh_token', 'http://127.0.0.1:8081', '',
         'openid,client.read,client.create',
         '{ "@class": "java.util.Collections$UnmodifiableMap", "settings.client.require-proof-key": false, "settings.client.require-authorization-consent": true}',

@@ -50,7 +50,6 @@ public class AuthorizationServerConfig {
                 .authorizationEndpoint(authorizationEndpoint -> authorizationEndpoint
                         .authenticationProvider(authenticationProvider)
                         .consentPage("/oauth/consent")
-                        //.authorizationResponseHandler(authenticationSuccessHandler())
                         .errorResponseHandler((request, response, exception) -> response.sendError(HttpServletResponse.SC_BAD_REQUEST)))
                 .authorizationConsentService(authorizationConsentService);
 
@@ -64,23 +63,6 @@ public class AuthorizationServerConfig {
 
         return http.build();
     }
-
-/*    @Bean
-    public AuthorizationServerSettings authorizationServerSettings() {
-        return AuthorizationServerSettings.builder().issuer("http://127.0.0.1:9000").build();
-    }*/
-
-  /*  @Bean
-    public AuthenticationSuccessHandler authenticationSuccessHandler() {
-        return (request, response, authentication) -> {
-            OAuth2AuthorizationCodeRequestAuthenticationToken auth = (OAuth2AuthorizationCodeRequestAuthenticationToken) authentication;
-            if (hasText(auth.getState())) {
-                response.sendRedirect(auth.getRedirectUri() + "?code=" + Objects.requireNonNull(auth.getAuthorizationCode()).getTokenValue() + "&state=" + auth.getState());
-                return;
-            }
-            response.sendRedirect(auth.getRedirectUri() + "?code=" + Objects.requireNonNull(auth.getAuthorizationCode()).getTokenValue());
-        };
-    }*/
 
     @Bean
     public JWKSource<SecurityContext> jwkSource() {
