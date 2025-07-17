@@ -24,7 +24,7 @@ import static com.bos.server.config.exception.controllerAdvice.GeneralController
 
 @Slf4j
 @Order(value = Ordered.HIGHEST_PRECEDENCE)
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = "com.bos.server")
 public class MainControllerAdvice {
 
     /**
@@ -82,6 +82,7 @@ public class MainControllerAdvice {
      */
     @ExceptionHandler(IllegalArgumentException.class)
     protected ResponseEntity<ErrorResponseDTO> handleIllgegalURLException(IllegalArgumentException iae) {
+        log.error("MainControllerAdvice caught IllegalArgumentException:", iae);
         return handleGeneralException(HttpStatus.BAD_REQUEST, iae);
     }
 

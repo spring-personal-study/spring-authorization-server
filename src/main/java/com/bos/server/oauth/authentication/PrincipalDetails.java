@@ -49,7 +49,7 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
 
     @Override
     public String getUsername() {
-        return resourceOwner.roId();
+        return resourceOwner.id();
     }
 
     @Override
@@ -74,6 +74,6 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
 
     @Override
     public String getName() {
-        return resourceOwner.roId();
+        return resourceOwner.id();
     }
 }

@@ -1,14 +1,13 @@
 package com.bos.server.config;
 
-import com.bos.server.oauth.authentication.CustomAuthenticationProvider;
 import com.bos.server.oauth.service.JpaOAuth2AuthorizationConsentService;
+import com.bos.server.oauth.service.JpaOAuth2AuthorizationService;
+import com.bos.server.oauth.service.JpaRegisteredClientRepository;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -18,8 +17,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
+import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
 import java.security.KeyPair;
@@ -32,36 +33,41 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @EnableWebSecurity
 @Configuration
-@RequiredArgsConstructor
 public class AuthorizationServerConfig {
 
-    private final CustomAuthenticationProvider authenticationProvider;
-    private final JpaOAuth2AuthorizationConsentService authorizationConsentService;
-    private final CustomClientMetadataConfig customClientMetadataConfig;
+    private final JpaRegisteredClientRepository jpaRegisteredClientRepository;
+    private final JpaOAuth2AuthorizationService jpaOAuth2AuthorizationService;
+    private final JpaOAuth2AuthorizationConsentService jpaOAuth2AuthorizationConsentService;
+
+    public AuthorizationServerConfig(JpaRegisteredClientRepository jpaRegisteredClientRepository, JpaOAuth2AuthorizationService jpaOAuth2AuthorizationService, JpaOAuth2AuthorizationConsentService jpaOAuth2AuthorizationConsentService) {
+        this.jpaRegisteredClientRepository = jpaRegisteredClientRepository;
+        this.jpaOAuth2AuthorizationService = jpaOAuth2AuthorizationService;
+        this.jpaOAuth2AuthorizationConsentService = jpaOAuth2AuthorizationConsentService;
+    }
 
     @Bean
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
+
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
-                .oidc(oidc -> oidc.clientRegistrationEndpoint(
-                        clientRegistrationEndpoint ->
-                                clientRegistrationEndpoint.authenticationProviders(customClientMetadataConfig.configureCustomClientMetadataConverters())))
-                .authorizationEndpoint(authorizationEndpoint -> authorizationEndpoint
-                        .authenticationProvider(authenticationProvider)
-                        .consentPage("/oauth/consent")
-                        .errorResponseHandler((request, response, exception) -> response.sendError(HttpServletResponse.SC_BAD_REQUEST)))
-                .authorizationConsentService(authorizationConsentService);
+                .registeredClientRepository(jpaRegisteredClientRepository)
+                .authorizationService(jpaOAuth2AuthorizationService)
+                .authorizationConsentService(jpaOAuth2AuthorizationConsentService)
+                .oidc(withDefaults()); // Enable OIDC with default settings, which includes client registration
 
         http.exceptionHandling((exceptions) -> exceptions.defaultAuthenticationEntryPointFor(
-                new LoginUrlAuthenticationEntryPoint("/login"),
-                new MediaTypeRequestMatcher(MediaType.TEXT_HTML))
-        );
-
-        // Accept access tokens for User Info and/or Client Registration
-        http.oauth2ResourceServer((oauth2) -> oauth2.jwt(withDefaults()));
+                        new LoginUrlAuthenticationEntryPoint("/login"),
+                        new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
+                ))
+                .oauth2ResourceServer((oauth2) -> oauth2.jwt(withDefaults()));
 
         return http.build();
+    }
+
+    @Bean
+    public AuthorizationServerSettings authorizationServerSettings() {
+        return AuthorizationServerSettings.builder().build();
     }
 
     @Bean

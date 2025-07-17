@@ -11,19 +11,14 @@ import lombok.NoArgsConstructor;
 public class ResourceOwner {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "USER_ID")
-    private Long id;
+    @Column(name = "ID", length = 255, nullable = false, unique = true)
+    private String id;
 
-    @Column(name = "ID", length = 20, nullable = false, unique = true)
-    private String resourceOwnerId;
-
-    @Column(name = "PASSWORD", length = 500, nullable = false)
+    @Column(name = "PASSWORD", length = 255, nullable = false)
     private String password;
 
-    public ResourceOwner(Long id, String resourceOwnerId, String password) {
+    public ResourceOwner(String id, String password) {
         this.id = id;
-        this.resourceOwnerId = resourceOwnerId;
         this.password = password;
     }
 }

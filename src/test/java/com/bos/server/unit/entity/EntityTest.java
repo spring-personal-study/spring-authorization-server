@@ -206,14 +206,12 @@ public class EntityTest {
         @DisplayName("Given ResourceOwnerEntity, when to create, then Ok")
         void givenResourceOwnerEntity_whenToCreate_thenOk() {
             ResourceOwner resourceOwner = new ResourceOwner(
-                    1L,
                     "username",
                     "$2a$12$JTX1hGYLGuhX3rOiHL5Gne0iOwh0AfA3PAmUmZuEtZk8arbB5BrGa"
             );
 
             assertThat(resourceOwner).isNotNull();
-            assertThat(resourceOwner.getId()).isEqualTo(1L);
-            assertThat(resourceOwner.getResourceOwnerId()).isEqualTo("username");
+            assertThat(resourceOwner.getId()).isEqualTo("username");
             assertThat(resourceOwner.getPassword()).isEqualTo("$2a$12$JTX1hGYLGuhX3rOiHL5Gne0iOwh0AfA3PAmUmZuEtZk8arbB5BrGa");
 
         }

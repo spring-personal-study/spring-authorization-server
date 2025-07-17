@@ -13,8 +13,8 @@ public class PrincipalService implements UserDetailsService {
     private final JpaOauth2ResourceOwnerService resourceOwnerService;
 
     @Override
-    public PrincipalDetails loadUserByUsername(String roId) {
-        ResourceOwnerDto resourceOwner = resourceOwnerService.findByResourceOwnerId(roId);
+    public PrincipalDetails loadUserByUsername(String id) {
+        ResourceOwnerDto resourceOwner = resourceOwnerService.findById(id);
         return new PrincipalDetails(resourceOwner);
     }
 }

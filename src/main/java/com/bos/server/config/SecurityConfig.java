@@ -33,18 +33,11 @@ public class SecurityConfig {
     @Bean
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests((authorize) -> {
-            authorize.requestMatchers("/error").permitAll();
-            authorize.anyRequest().authenticated();
-        });
-
-        // access custom login page
-        http.formLogin(formLogin -> formLogin.loginPage("/login").permitAll());
-        http.cors(AbstractHttpConfigurer::disable);
-
-        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
-        http.authenticationProvider(daoAuthenticationProvider);
+        http.authorizeHttpRequests((authorize) ->
+            authorize.requestMatchers("/error").permitAll()
+            .anyRequest().authenticated()
+        )
+        .formLogin(formLogin -> formLogin.loginPage("/login").permitAll());
 
         return http.build();
     }

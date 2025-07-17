@@ -16,9 +16,9 @@ public class JpaOauth2ResourceOwnerService {
     private final ResourceOwnerRepository resourceOwnerRepository;
 
     @Transactional(readOnly = true)
-    public ResourceOwnerDto findByResourceOwnerId(String roId) {
-        ResourceOwner resourceOwner = resourceOwnerRepository.findByResourceOwnerId(roId);
-        if (resourceOwner == null) throw new BizException(ResourceOwnerCrudErrorCode.RO_NOT_FOUND);
+    public ResourceOwnerDto findById(String id) {
+        ResourceOwner resourceOwner = resourceOwnerRepository.findById(id)
+                .orElseThrow(() -> new BizException(ResourceOwnerCrudErrorCode.RO_NOT_FOUND));
         return ResourceOwnerDto.toObject(resourceOwner);
     }
 
