@@ -34,10 +34,10 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests((authorize) ->
-            authorize.requestMatchers("/error").permitAll()
+            authorize.requestMatchers("/error", "/oauth2/**", "/.well-known/**", "/login").permitAll()
             .anyRequest().authenticated()
         )
-        .formLogin(formLogin -> formLogin.loginPage("/login").permitAll());
+        .formLogin(formLogin -> formLogin.loginPage("/login"));
 
         return http.build();
     }
