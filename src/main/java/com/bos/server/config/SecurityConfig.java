@@ -34,7 +34,7 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests((authorize) ->
-            authorize.requestMatchers("/error", "/oauth2/**", "/.well-known/**", "/login").permitAll()
+            authorize.requestMatchers("/error", "/oauth2/**", "/.well-known/**", "/login", "/clients/register").permitAll()
             .anyRequest().authenticated()
         )
         .formLogin(formLogin -> formLogin.loginPage("/login"));

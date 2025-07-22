@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>bluebird oauth2 client registration page</title>
+    <link rel="icon" href="/favicon.ico"/>
+</head>
+<body>
+<div class="container mx-auto px-5">
+    <!-- 모달 헤더 -->
+    <div class="flex justify-center items-center">
+        <div class="flex items-center space-x-1 p-5">
+            <img src="/images/bluebird_brand_logo.png"  alt=""/>
+            <p class="text-2xl font-bold text-[#009fe3]">Bluebird</p>
+        </div>
+    </div>
+    <div class="container">
+        <form th:action="@{/clients/register}" method="post">
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+            <div class="container mt-5">
+                <div>
+                    <label for="clientName" class="block text-sm font-medium leading-6 text-gray-900">Client Name</label>
+                    <div class="mt-2">
+                        <div class="container rounded-md ring-1 ring-inset ring-gray-300 focus-within:ring-2">
+                            <input
+                                    type="text"
+                                    name="clientName"
+                                    id="clientName"
+                                    class="w-full bg-transparent py-2 pl-3 text-gray-900 placeholder:text-gray-400"
+                                    placeholder="Client Name"
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container mt-5">
+                <div>
+                    <label for="clientId" class="block text-sm font-medium leading-6 text-gray-900">Client ID</label>
+                    <div class="mt-2">
+                        <div class="container rounded-md ring-1 ring-inset ring-gray-300 focus-within:ring-2">
+                            <input
+                                    type="text"
+                                    name="clientId"
+                                    id="clientId"
+                                    class="w-full bg-transparent py-2 pl-3 text-gray-900 placeholder:text-gray-400"
+                                    placeholder="Client ID"
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container mt-5">
+                <div>
+                    <label for="clientSecret" class="block text-sm font-medium leading-6 text-gray-900">Client Secret</label>
+                    <div class="mt-2">
+                        <div class="container rounded-md ring-1 ring-inset ring-gray-300 focus-within:ring-2">
+                            <input
+                                    type="password"
+                                    name="clientSecret"
+                                    id="clientSecret"
+                                    class="w-full bg-transparent py-2 pl-3 text-gray-900 placeholder:text-gray-400"
+                                    placeholder="Client Secret"
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container mt-5">
+                <div>
+                    <label for="redirectUris" class="block text-sm font-medium leading-6 text-gray-900">Redirect Uris</label>
+                    <div class="mt-2">
+                        <div class="container rounded-md ring-1 ring-inset ring-gray-300 focus-within:ring-2">
+                            <input
+                                    type="text"
+                                    name="redirectUris"
+                                    id="redirectUris"
+                                    class="w-full bg-transparent py-2 pl-3 text-gray-900 placeholder:text-gray-400"
+                                    placeholder="Redirect Uris (comma separated)"
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container mt-5">
+                <div>
+                    <label for="scopes" class="block text-sm font-medium leading-6 text-gray-900">Scopes</label>
+                    <div class="mt-2">
+                        <div class="container rounded-md ring-1 ring-inset ring-gray-300 focus-within:ring-2">
+                            <input
+                                    type="text"
+                                    name="scopes"
+                                    id="scopes"
+                                    class="w-full bg-transparent py-2 pl-3 text-gray-900 placeholder:text-gray-400"
+                                    placeholder="Scopes (comma separated)"
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container mt-5">
+                <div>
+                    <input
+                            type="submit"
+                            class="w-full bg-sky-500 hover:bg-sky-600 focus:bg-sky-700 text-white rounded-md text-lg py-2 cursor-pointer font-semibold"
+                            value="Register"
+                    />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

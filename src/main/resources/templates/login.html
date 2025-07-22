@@ -64,6 +64,9 @@
             <div class="container text-left mt-5" th:if="${param.error}">
                 <span class="text-red-500">Invalid username and password.</span>
             </div>
+            <div class="container text-left mt-5" th:if="${message}">
+                <span class="text-green-500" th:text="${message}"></span>
+            </div>
         </form>
     </div>
 </div>
